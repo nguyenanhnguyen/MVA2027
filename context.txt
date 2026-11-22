@@ -1,0 +1,942 @@
+MVA2027
+20th International Conference on Machine Vision Applications
+Home
+Call for Papers ▾
+Program ▾
+Attend ▾
+Organization ▾
+Challenge
+Partners
+Past MVAs
+SMOTP4SB Challenge
+Overview
+Dataset
+Evaluation
+Participation
+Dates & Prizes
+Baseline
+Organizers
+MVA2027 Challenge · May 12–14, 2027 · Fukuoka
+
+Track 1
+Where are the birds?
+Track 2
+Where are they going?
+Small Multi-Object Tracking and Prediction for Spotting Birds. The challenge focuses on tracking small birds in videos captured by a moving drone. This year, participants can also use motion data from the drone's inertial measurement unit (IMU).
+
+Join the challenge
+Baseline code
+Every trail is a ground-truth track from the training set.
+News
+November 14, 2026
+Dataset, baseline code and both CodaBench competitions open.
+November 4, 2026
+The challenge website is online.
+The challenge at a glance
+The challenge has two tracks based on the same drone footage. Track 1 focuses on tracking birds, while Track 2 focuses on predicting their future movements.
+
+1
+Track 1
+Multimodal tracking
+Where is every bird?
+Input: Video and IMU data. Output: A bounding box and a consistent tracking ID for each bird in every frame.
+Ranked by SO-HOTA
+2
+Track 2 New
+Trajectory prediction
+Where will it be in 5 seconds?
+Input: 2 seconds of video and IMU data. Output: Six possible future trajectories for each bird over the next 5 seconds.
+Ranked using SO-HOTA-TP, a new evaluation metric proposed for this challenge.
+Each track has its own leaderboard and prizes. Participants can enter either track or both.
+
+Input to both tracks
+
+Video
+30 fps
+
+Three frames from the same 7 seconds of one training sequence
+IMU
+New
+yaw change, −5° to 0°
+
+IMU
+ground speed, 0 to 2.1 m/s
+
+0 s
+7 s
+
+This example shows 7 seconds of video and IMU data from a training sequence. The IMU records the drone's orientation and velocity and the pilot's gimbal and zoom commands in each frame. This information helps distinguish camera motion from bird motion.
+
+1
+Track 1 · Multimodal tracking
+
+Where is every bird?
+Detect each bird and assign a bounding box to it in every frame.
+185
+Assign each bird a tracking ID and keep it consistent across frames.
+Input: video + IMU. Scored by SO-HOTA
+2
+Track 2 · Trajectory prediction · new
+
+Where will it be in 5 seconds?
+Observed 2 seconds
+Six predicted trajectories
+Actual bird trajectory
+Input: video + IMU. Stop predicting for a bird once it leaves the video frame. Scored by SO-HOTA-TP, proposed for this challenge
+In Track 2, participants receive video rather than ground-truth bird trajectories. Their methods must first track the birds and then predict their future movements. A tracker developed for Track 1 can also be used for Track 2.
+
+November 14, 2026
+Data & public test open
+February 3, 2027
+Public test closes
+February 17, 2027
+Code submission
+March 10, 2027
+Results
+March 31, 2027
+Paper deadline
+May 12, 2027
+MVA2027, Fukuoka
+Why this is hard
+A wide campus scene with a small box high in the sky, enlarged inset showing three birds
+The bird in this 3840 × 2160 image is only 26 × 24 pixels, as shown in the enlarged view. Its appearance provides little information for tracking. Moreover, IoU cannot distinguish between predictions whose bounding boxes do not overlap the ground truth. Both tracks therefore use Dot Distance for evaluation.
+Small objects. Most birds are smaller than 32 × 32 pixels, making it difficult to match the same bird across frames based on appearance alone.
+
+Camera and bird motion. Both the drone camera and the birds move in 3D, so their motions are mixed in the video. This makes tracking and prediction difficult, especially when the drone changes direction.
+
+Bird, in the world
++
+Camera ego-motion
+=
+What the video shows
+A key challenge is separating bird motion from camera motion. IMU data can help estimate and compensate for camera motion.
+Birds disappearing from view. In the training data, 41% of the birds observed during a Track 2 input window disappear from view before the 5-second prediction period ends, for example by leaving the frame or becoming occluded. Methods must also predict when a bird will no longer be visible.
+
+Different backgrounds. Birds are filmed against open skies, campus scenes, and rocky riverbeds. The baseline detector performs much better against open skies than against complex backgrounds such as rocks.
+
+The Spotting Birds series
+SMOTP4SB is the third challenge in a series held at MVA. The challenge has progressed from detecting birds in still images (2023), to tracking them in videos (2025), and now to predicting their future trajectories (2027).
+
+MVA2023
+
+SOD4SB
+Small Object Detection for Spotting Birds
+Detection in single images
+57,019 training images
+Ranked by mAP@50
+200+ participants
+Visit the MVA2023 challenge →
+MVA2025
+
+SMOT4SB
+Small Multi-Object Tracking for Spotting Birds
+Tracking across UAV video
+Introduced SO-HOTA (Dot Distance)
+78 participants, 308 submissions
+Winner 5.1x the baseline
+Visit the MVA2025 challenge →
+MVA2027
+
+IMU
+SMOTP4SB
+Tracking and Prediction
+New: Track 1 is multimodal, video + IMU
+New: Track 2 predicts 5 s ahead
+New: SO-HOTA-TP, a proposed metric
+Track 1 keeps SO-HOTA
+You are here
+New in 2027:
+
+Track 1 now supports video and IMU data. Unlike MVA2025, which used only video, 27 of the 128 training sequences also include drone orientation, velocity, and the pilot's gimbal and zoom commands recorded for each frame. Participants may use this information to help distinguish camera motion from bird motion when tracking birds. Using IMU data is optional.
+Track 2, trajectory prediction. Predict 5 seconds ahead from 2 seconds of video, with the same IMU data available.
+SO-HOTA-TP: A new evaluation metric. Track 2 uses a newly proposed metric that treats a bird leaving the frame as part of the task. Its full definition will be presented in the MVA2027 challenge report.
+Potential applications include preventing bird strikes near airports and wind farms, protecting crops and fisheries, and monitoring bird populations. These applications can benefit from knowing both the current positions of birds and where they are likely to fly next.
+
+SMOTP4SB Challenge, in conjunction with MVA2027, May 12–14, 2027, Kyushu University, Fukuoka, Japan.
+
+Baseline code and documentation: GitHub
+
+
+
+
+
+MVA2027
+20th International Conference on Machine Vision Applications
+Home
+Call for Papers ▾
+Program ▾
+Attend ▾
+Organization ▾
+Challenge
+Partners
+Past MVAs
+SMOTP4SB Challenge
+Overview
+Dataset
+Evaluation
+Participation
+Dates & Prizes
+Baseline
+Organizers
+Dataset
+The dataset contains drone videos of wild birds. Each bird is annotated with a bounding box and a tracking ID in every frame in which it is visible.
+
+Splits
+Split	Sequences	Ground truth	Images
+train	128	public	public
+public test	38	scoring server only	public
+private test	not disclosed	scoring server only	released after the challenge
+The training set contains 1,256 annotated bird tracks, each averaging 180 frames (6.0 seconds). The size of the private test set will not be disclosed during the challenge.
+
+Format
+Videos are provided as JPEG image sequences at 30 frames per second (fps), with one folder per sequence:
+
+SMOTP4SB/
+├── train/
+│   └── {seq_id}/
+│       ├── 00001.jpg
+│       ├── ...
+│       └── imu.csv              where available
+├── pub_test/                    same layout, no annotations
+├── annotations/
+│   └── train.json               COCO-style MOT
+├── camera_intrinsics.json       per-sequence camera matrix K
+└── seqlist.json
+Annotations use the same COCO-style multi-object tracking (MOT) format as SMOT4SB. Each image has a file_name and frame_id, and each object annotation includes a track_id and a bounding box [x, y, w, h].
+
+Video resolution varies across sequences. Most are 3840 × 2160, while some are 1920 × 1080. Both resolutions appear in the training set, so participants' methods should support both. The baseline automatically adjusts its input size for each sequence.
+
+IMU telemetry
+IMU data is new in 2027 and is available for both tracks. It is provided for 27 of the 128 training sequences and 7 of the 38 public test sequences, those filmed using a ProDrone, with one row per frame in an imu.csv file. The private test has a similar share.
+
+Each row holds the drone's attitude (Euler angles, quaternion, rotation matrix), gyroscope and accelerometer readings, NED velocity and position, height above ground, and the pilot's gimbal and zoom commands. The rows were placed in the flight log by matching the camera's zoom, pan and tilt in the footage against those commands.
+
+The drone's attitude is not the camera's, which matters for anyone using it:
+
+The camera is on a gimbal that follows the drone's heading, smoothed and roughly 0.5-1 s late, and the pilot pans, tilts and zooms it independently. The gimbal angles and the zoom ratio are not logged, but the commands are.
+The lens zooms optically, so the focal length changes by up to about 10x within a sequence.
+Translation is logged as velocity, but its effect in the image depends on each bird's distance, which the dataset does not provide.
+The baseline's cmc/ learns the camera's motion from these channels on the training frames and removes it from the observed trajectories. It is provided as a starting point: it removes about a fifth of the camera's motion, but it does not yet improve the baseline's predictions. Using the IMU is optional.
+
+Licence
+Copyright (c) 2027 MVA organization and Toyota Technological Institute
+Modified MIT: use, copy, modify, publish and redistribute freely, provided the copyright notice and licence text accompany any copy. Commercial use requires prior contact with the organizers; the licence file distributed with the data carries the form. Provided as is, without warranty.
+
+Download
+As in MVA2025, the dataset is distributed via Google Drive rather than CodaBench. Downloads opened on November 14, 2026.
+
+Separate download packages are provided for Track 1 and Track 2:
+
+📁 Track 1 tracking dataset: Google Drive
+📁 Track 2 prediction dataset: Google Drive
+Both packages include the available IMU data and camera calibration parameters for each sequence.
+
+SMOTP4SB Challenge, in conjunction with MVA2027, May 12–14, 2027, Kyushu University, Fukuoka, Japan.
+
+Baseline code and documentation: GitHub
+
+
+
+MVA2027
+20th International Conference on Machine Vision Applications
+Home
+Call for Papers ▾
+Program ▾
+Attend ▾
+Organization ▾
+Challenge
+Partners
+Past MVAs
+SMOTP4SB Challenge
+Overview
+Dataset
+Evaluation
+Participation
+Dates & Prizes
+Baseline
+Organizers
+Evaluation
+Both tracks use Dot Distance instead of Intersection over Union (IoU) to compare predicted and ground-truth positions. For very small objects, even a one-pixel shift can substantially reduce IoU. Once two bounding boxes no longer overlap, their IoU becomes zero, regardless of how far apart they are. Dot Distance can distinguish predictions that are close to the true position from those that are much farther away.
+
+DotD(A, B) = exp(-D / S)
+0
+0.25
+0.5
+0.75
+1
+0
+10
+20
+30
+40
+50
+60
+centre offset (px)
+IoU = 0 from 16 px
+IoU
+Dot Distance
+This example shows a 16-pixel-wide bird and a predicted bounding box shifted horizontally. IoU becomes zero when the boxes no longer overlap, at offsets of 16 pixels or more. In contrast, Dot Distance (S = 24.15) decreases gradually as the distance increases, allowing the metric to distinguish small errors from large ones.
+Here, D is the distance between the centers of two bounding boxes, and S is the average bounding-box size in the dataset. A predicted box and a ground-truth box can be matched when their Dot Distance is at least a threshold α. The final evaluation score is averaged over thresholds from 0.05 to 0.95 in steps of 0.05. Matching is one-to-one and uses the Hungarian algorithm.
+
+Five birds in one frame, each boxed and numbered with a distinct colour
+Track 1 evaluates whether each bird is detected and whether its tracking ID remains consistent across frames.
+Track 1: SO-HOTA
+SO-HOTA was introduced in MVA2025 and is used without changes in MVA2027, allowing results to be compared using the same evaluation metric.
+
+SO-HOTA(α) = sqrt( SO-DetA(α) × SO-AssA(α) )
+SO-HOTA combines detection accuracy (finding the birds) and association accuracy (keeping their IDs consistent), as in HOTA, but uses Dot Distance instead of IoU.
+
+Track 2: SO-HOTA-TP (proposed for this challenge)
+SO-HOTA-TP is a new evaluation metric proposed by the MVA2027 organizers. The full definition will appear in the MVA2027 challenge report. Please cite that report when using the metric (see the Citing section).
+Average Displacement Error (ADE) and Final Displacement Error (FDE) compare predicted positions with ground-truth positions. However, these measures cannot be computed for frames without ground-truth positions. In this dataset, 41% of birds disappear from view before the 5-second prediction period ends.
+
+This example is taken from the training set. The model observes 2 seconds of video and predicts six possible future trajectories using a Kalman-filter baseline, shown in gray. The bird then dives along a path that none of the predictions follows (actual future).
+SO-HOTA-TP evaluates predictions in frames with ground-truth annotations. If a method continues predicting a bird after it disappears, those extra predictions count as false positives. Methods must therefore predict not only where birds will move, but also when they will leave the view. Unlike minADE, SO-HOTA-TP penalizes predictions that continue beyond the bird's annotated trajectory.
+
+Ground truth
+Keep predicting
+Stop at exit
+bird leaves frame
+ scored against ground truth  false positive  nothing to score. Under minADE both strategies score the same. Under SO-HOTA-TP, predicting past the exit is penalised frame by frame, which makes predicting when a track ends part of the task.
+For each bird and observation window, the evaluator selects the predicted trajectory that best matches the visible ground-truth positions among the K candidates. Only that trajectory is used to calculate the score. This is called best-of-K evaluation.
+
+We also report minADE₆, minFDE₆, and Miss Rate so participants can compare their methods with previous trajectory-prediction studies. These measures do not affect the leaderboard rankings.
+
+Leaderboard scores are computed using the evaluation code provided in the baseline repository. The repository also explains the metrics and why they were chosen. For the definition of SO-HOTA, see Section 4 of the MVA2025 challenge report (arXiv:2507.12832).
+
+SMOTP4SB Challenge, in conjunction with MVA2027, May 12–14, 2027, Kyushu University, Fukuoka, Japan.
+
+Baseline code and documentation: GitHub
+
+
+MVA2027
+20th International Conference on Machine Vision Applications
+Home
+Call for Papers ▾
+Program ▾
+Attend ▾
+Organization ▾
+Challenge
+Partners
+Past MVAs
+SMOTP4SB Challenge
+Overview
+Dataset
+Evaluation
+Participation
+Dates & Prizes
+Baseline
+Organizers
+Participation
+How it works
+Register on CodaBench for the track you wish to enter. Registration is approved automatically, and you will receive challenge updates by email.
+Download the dataset from Google Drive, linked on the Dataset page.
+During the public test phase, run your method on the public test sequences and upload your predictions to CodaBench. The leaderboard is updated after each submission.
+For the private test phase, submit your trained model and inference script using the Google Form before the code submission deadline. The organizers will evaluate your code on private test sequences that have not been released. Only these private test results determine the final ranking. How the code is run (input layout, output format, Docker, GPUs, run time) is described in docs/private_test.md.
+Track 1 and Track 2 are separate CodaBench competitions, each with its own leaderboard. Participants may enter either track or both.
+
+Track 1, tracking: codabench.org/competitions/18322
+Track 2, prediction: codabench.org/competitions/18323
+Private test submission: Google Form
+Submitting to the public leaderboard
+Track 1: Upload a ZIP file containing one MOT-format result file for each sequence, named {seq_id}.txt:
+
+frame_id, track_id, x, y, w, h, conf
+Track 2: Upload a ZIP file containing two folders, prediction/ and tracking/, each with one file per sequence. The tracking/ folder must contain your tracker's results for the observed frames. The evaluator uses these results to match your predicted bird IDs with the ground truth, which is not released. Submissions without the tracking/ folder cannot be evaluated.
+
+The baseline repository provides detailed file-format specifications, a tool to check your ZIP files before submission, and a script to generate the required archives.
+
+As in MVA2025, each team may submit up to 10 times per day during the public test phase. This limit is intended to reduce excessive tuning to the public leaderboard.
+
+After the private test
+Top-ranked participants in each track will be invited to co-author the MVA2027 challenge report. The report will compare methods not only by the ranking metric but also by standard tracking and trajectory-prediction measures, inference speed, and computational cost. Award recipients are required to contribute to the report as co-authors.
+
+Award recipients must also submit a technical paper explaining their method in the MVA main-conference format and make their code publicly available. The papers will undergo peer review. Accepted papers will be presented orally at the MVA2027 challenge special session, with an optional poster presentation.
+
+Presentations at MVA2027 are given on-site in Fukuoka; remote presentations (live video or pre-recorded) are not accepted. A technical paper that is not presented on-site is treated as a no-show and does not appear in the proceedings. The challenge report, the award and the prize money do not depend on attendance: your method appears in the proceedings through the report, the prize is paid by bank transfer, and certificates are sent by mail to those who cannot attend.
+
+Details of the paper submission process are sent directly to the winners.
+
+Rules
+Track 2: Predictions must use only the 60 observed video frames (2 seconds) and the corresponding IMU measurements. Future video frames and future IMU data are not allowed. If a method needs future camera motion, it must estimate it from the available input. Submissions that exploit ground-truth annotations from the Track 1 tracking data will be disqualified.
+Publicly available external data and pretrained models may be used, including the SOD4SB (MVA2023) and SMOT4SB (MVA2025) datasets.
+You may enter on your own or as a team. Team members each register on CodaBench and submit together through CodaBench's organization feature.
+In the private test, submissions that are only minor variations of the same method must be merged into one.
+Organizers may inspect submitted code to verify results.
+Discussion
+Registered participants discuss the challenge on our Discord server. There is no public invitation link: within about 10 minutes of registering on CodaBench, you receive a personal, single-use invitation by email from CodaBench, sent to the address registered with your account. Joining through it links your Discord account to your CodaBench account: the discussion channels open, and your name on the server is your CodaBench username, so that contributions are credited to the right participant. If the channels do not open, type /verify in the #verify channel. If no invitation arrives, contact mva2027-tec@mva-org.jp. The participant who makes the most valuable contributions to the discussion will receive the Best Booster Award.
+
+SMOTP4SB Challenge, in conjunction with MVA2027, May 12–14, 2027, Kyushu University, Fukuoka, Japan.
+
+Baseline code and documentation: GitHub
+
+
+
+MVA2027
+20th International Conference on Machine Vision Applications
+Home
+Call for Papers ▾
+Program ▾
+Attend ▾
+Organization ▾
+Challenge
+Partners
+Past MVAs
+SMOTP4SB Challenge
+Overview
+Dataset
+Evaluation
+Participation
+Dates & Prizes
+Baseline
+Organizers
+Important dates
+All deadlines are at 23:59 Anywhere on Earth (AoE, UTC−12), as for the MVA2027 main conference, and are subject to change. If a deadline changes, the previous date will remain visible with a strikethrough next to the updated date (for example March 17, 2027 ⇒ March 10, 2027). Changes will also be announced in the News section.
+
+Event	Date
+Site online	November 4, 2026
+Dataset and baseline code release	November 14, 2026
+Public test server opens	November 14, 2026
+Public test server closes	February 3, 2027
+Code submission deadline	February 17, 2027
+Private test results	March 10, 2027
+Paper submission deadline	March 31, 2027
+Notification	April 3, 2027
+Camera-ready deadline	April 22, 2027
+MVA2027	May 12–14, 2027
+Participants will have three weeks between the announcement of private test results and the paper submission deadline, and 19 days between paper notification and the camera-ready deadline. The organizers will announce the total number of final submissions shortly after the code submission deadline, allowing participants to begin preparing their papers before the results are released.
+
+Prizes and awards
+Both tracks offer cash prizes, and one representative of each award-winning team will receive free admission to MVA2027. Top-ranked participants whose technical papers are accepted after peer review will be invited to present their methods at the MVA2027 challenge special session.
+
+Each track is awarded separately.
+
+Rank	Prize	Award
+1st	150,000 JPY	Best Solution Award
+2nd	100,000 JPY	Runner-Up Solution Award
+3rd	50,000 JPY	Honorable Mention Solution Award
+The Best Booster Award recognizes the participant who makes the most valuable contributions to discussions on Discord. The organizers will consider both the quality of contributions and reactions from other participants. The award includes free admission to MVA2027 but no cash prize.
+
+Prizes are supported by a donation from the MVA organization.
+
+SMOTP4SB Challenge, in conjunction with MVA2027, May 12–14, 2027, Kyushu University, Fukuoka, Japan.
+
+Baseline code and documentation: GitHub
+
+
+
+MVA2027
+20th International Conference on Machine Vision Applications
+Home
+Call for Papers ▾
+Program ▾
+Attend ▾
+Organization ▾
+Challenge
+Partners
+Past MVAs
+SMOTP4SB Challenge
+Overview
+Dataset
+Evaluation
+Participation
+Dates & Prizes
+Baseline
+Organizers
+Baseline
+Code, documentation and measured results: https://github.com/IIM-TTIJ/MVA2027-SMOTP4SB
+
+The GitHub repository provides code for both tracks: a bird detector and tracker for Track 1, several trajectory-prediction models for Track 2, evaluation code for both metrics, and tools for checking and preparing submissions. A single command runs the full pipeline from input images to a ZIP file ready for submission.
+
+bash scripts/run_pipeline.sh \
+    --input <sequences> --checkpoint <detector> --output-dir runs/
+Track 1 uses YOLOv8-SMOT, the winning tracking method from MVA2025.
+
+Track 2 uses PPT (ECCV 2024), adapted to predict 5 seconds into the future and trained for SO-HOTA-TP. A lightweight LSTM trained in the same way and simple reference methods are also provided for comparison.
+
+Measured results
+SO-HOTA-TP on the 26 validation sequences of the training set, with the ground-truth past trajectories as input and with the output of the baseline tracker (YOLOv8-SMOT-L) as input:
+
+Predictor	Ground-truth trajectories	Baseline tracker
+stay (the bird does not move)	0.127	0.013
+Constant velocity	0.158	0.023
+Kalman filter	0.121	0.029
+LSTM, trained for SO-HOTA-TP	0.195	0.043
+PPT, trained for SO-HOTA-TP	0.192	0.043
+Train for the metric. SO-HOTA-TP rewards precise short-term predictions and stopping a track when the bird leaves the view. Models trained to minimize the average distance error over the whole horizon (minADE) do not reliably beat constant velocity under SO-HOTA-TP. Training with a loss that follows SO-HOTA-TP raised PPT from 0.164 to 0.192 and, together with predicting when each bird disappears, the LSTM from 0.149 to 0.195.
+
+Errors in bird detection and tracking have a greater impact on performance than the choice of trajectory-prediction model. Participants must estimate the past trajectories from video. Using the output of the baseline tracker instead of the ground-truth trajectories lowers SO-HOTA-TP by about 75–90%. Simply using a larger detector does not solve this problem. The baseline detector also fails to detect birds in several river scenes with complex backgrounds, such as rocks and moving water.
+
+The results above do not use the IMU. The repository also provides IMU-based camera motion compensation as an optional extension. It removes about a fifth of the camera's motion from the observed trajectories, but the LSTM trained with it does not yet score higher than the same model without it. Making good use of the IMU is still an open problem.
+
+Detailed results, evaluation scripts, and explanations of what each experiment measures are available in the repository's docs/ folder.
+
+SMOTP4SB Challenge, in conjunction with MVA2027, May 12–14, 2027, Kyushu University, Fukuoka, Japan.
+
+Baseline code and documentation: GitHub
+
+
+
+
+Codabench
+v1.37.1
+Open-source platform for AI benchmarks and competitions
+
+Benchmarks/Competitions
+Datasets
+
+dacow
+Competition Logo
+MVA2027 SMOTP4SB Challenge Track 1: Small Multi-Object Tracking
+
+Win up to 150,000 JPY, with 300,000 JPY in prizes for the top 3 in this track!
+Organized by: mvatechevent (mva2027-tec@mva-org.jp)
+Current Phase Ends: February 4, 2027 at 6:59 PM GMT+7
+Current server time: November 21, 2026 at 10:20 AM GMT+7
+Docker image: codalab/codalab-legacy:py312 
+Track 1: Small Multi-Object Tracking
+Detect and track every bird across UAV video, assigning each a consistent id.
+
+What makes this hard
+Small objects. Most birds occupy fewer than 32×32 pixels. Appearance carries almost no information, so association cannot lean on it.
+Motion entanglement. The camera and the birds both move freely in 3D. Observed motion is the two mixed together, which breaks the smooth-motion assumption most trackers rely on.
+Flocking. Birds move in coordinated groups, so nearby targets look alike and cross often.
+Scale variation. Distance and flight pattern change apparent size quickly, which makes detection inconsistent frame to frame.
+Metric
+Ranked by SO-HOTA, the metric introduced for MVA2025. It is HOTA with Dot Distance in place of IoU: for objects a few pixels across, IoU falls to zero as soon as boxes stop overlapping, so it cannot tell a near miss from a wild one. See the Evaluation page.
+
+Baseline
+Code and documentation: https://github.com/IIM-TTIJ/MVA2027-SMOTP4SB
+
+The baseline is YOLOv8-SMOT, the winning method from MVA2025 (detection, tracking, and a distance penalty for association).
+
+Relation to Track 2
+Track 2 predicts where each bird goes next, from video, so it contains this task: a Track 2 entry has to track before it can predict. The two tracks are scored and awarded independently, and you may enter either or both.
+
+Dataset and private test
+The dataset is not distributed here. Download it from Google Drive. The link is on the challenge website.
+
+This page hosts the public test leaderboard only. For the private test, submit your trained model and test script through the Google Form before the code submission deadline (February 17, 2027, 23:59 AoE). The organizers run it on held-out sequences; the final ranking comes from that run. How the code is run (input layout, output format, Docker, GPUs, run time) is described in docs/private_test.md.
+
+Discussion on Discord
+Registered participants discuss the challenge on our Discord server. Within about ten minutes of registering for either track, CodaBench emails you a personal invitation (subject "A message from the admins of ..."). Joining through it links your Discord account to your CodaBench account: your name on the server is your CodaBench username, so contributions are credited to you. The invitation works once and is for you alone; team members each register and receive their own. If it does not arrive, email mva2027-tec@mva-org.jp. The participant who makes the most valuable contributions to the discussion receives the Best Booster Award.
+
+The challenge series at MVA
+MVA2023, SOD4SB: Small Object Detection for Spotting Birds, bird detection in images
+MVA2025, SMOT4SB: Small Multi-Object Tracking for Spotting Birds, bird tracking in drone video
+MVA2027, SMOTP4SB (this challenge): Small Multi-Object Tracking and Prediction for Spotting Birds, tracking and trajectory prediction, with drone IMU data
+Citation
+@inproceedings{kondo2025smot4sb,
+  title     = {{MVA 2025 Small Multi-Object Tracking for Spotting Birds
+               Challenge: Dataset, Methods, and Results}},
+  author    = {Kondo, Yuki and Ukita, Norimichi and others},
+  booktitle = {Proc. 19th Int. Conf. on Machine Vision and Applications (MVA)},
+  year      = {2025}
+}
+Codabench
+Open-source platform for AI benchmarks and competitions
+
+Quick Links
+Popular Benchmarks
+Recent Benchmarks
+External Benchmarks
+Public Datasets
+News
+Organizers
+Create a benchmark
+Documentation
+API docs
+Community
+GitHub
+Release notes
+How to contribute
+Report an issue
+Cite Codabench
+© 2026 Codabench
+Privacy and Terms
+Code of Conduct
+Security
+License
+
+
+
+Codabench
+v1.37.1
+Open-source platform for AI benchmarks and competitions
+
+Benchmarks/Competitions
+Datasets
+
+dacow
+Competition Logo
+MVA2027 SMOTP4SB Challenge Track 1: Small Multi-Object Tracking
+
+Win up to 150,000 JPY, with 300,000 JPY in prizes for the top 3 in this track!
+Organized by: mvatechevent (mva2027-tec@mva-org.jp)
+Current Phase Ends: February 4, 2027 at 6:59 PM GMT+7
+Current server time: November 21, 2026 at 10:20 AM GMT+7
+Docker image: codalab/codalab-legacy:py312 
+Submission format
+A zip containing one MOT-format file per sequence, named after the sequence:
+
+submission.zip
+├── 0001.txt
+├── 0002.txt
+└── ...
+One wrapping folder is tolerated. Every sequence in the test split must be present; a sequence with no file is scored as all misses, not skipped.
+
+File format
+Standard MOT columns, comma-separated, one row per detection:
+
+frame_id, track_id, x, y, w, h, conf
+column	meaning
+frame_id	frame number in the sequence, 1-indexed
+track_id	your id for this bird, consistent across frames
+x, y	top-left corner of the box, pixels
+w, h	box width and height, pixels
+conf	detection confidence
+Coordinates are in the original 3840×2160 frame. frame_id and track_id must be integers. Track ids are yours to choose, since they are matched to ground truth during scoring. They must be consistent within a sequence, since identity consistency is half of what SO-HOTA measures.
+
+Checking your submission
+The scoring program reports which sequences it found and which it expected, so a mis-named file shows up as a warning rather than a silent zero. Run the baseline end to end first if you are unsure of the layout.
+
+Codabench
+Open-source platform for AI benchmarks and competitions
+
+Quick Links
+Popular Benchmarks
+Recent Benchmarks
+External Benchmarks
+Public Datasets
+News
+Organizers
+Create a benchmark
+Documentation
+API docs
+Community
+GitHub
+Release notes
+How to contribute
+Report an issue
+Cite Codabench
+© 2026 Codabench
+Privacy and Terms
+Code of Conduct
+Security
+License
+
+
+
+Codabench
+v1.37.1
+Open-source platform for AI benchmarks and competitions
+
+Benchmarks/Competitions
+Datasets
+
+dacow
+Competition Logo
+MVA2027 SMOTP4SB Challenge Track 1: Small Multi-Object Tracking
+
+Win up to 150,000 JPY, with 300,000 JPY in prizes for the top 3 in this track!
+Organized by: mvatechevent (mva2027-tec@mva-org.jp)
+Current Phase Ends: February 4, 2027 at 6:59 PM GMT+7
+Current server time: November 21, 2026 at 10:20 AM GMT+7
+Docker image: codalab/codalab-legacy:py312 
+Evaluation
+Ranked by SO-HOTA (Small Object Higher Order Tracking Accuracy), introduced for MVA2025.
+
+Why not HOTA
+HOTA, like most MOT metrics, measures overlap with IoU. For an object spanning a few dozen pixels that breaks down: a one-pixel shift changes IoU sharply, and once the boxes stop overlapping at all IoU is zero, so a prediction ten pixels away scores the same as one a thousand pixels away. At this object size the metric stops discriminating exactly where discrimination matters.
+
+Dot Distance
+SO-HOTA replaces IoU with Dot Distance:
+
+DotD(A, B) = exp(-D / S)
+where D is the distance between box centres and S is the mean bounding-box size across the dataset:
+
+S = sqrt( sum(w * h) / N )
+This decays smoothly with distance instead of dropping to zero once boxes stop overlapping, so a near miss scores better than a far one.
+
+The metric
+SO-HOTA(α) = sqrt( SO-DetA(α) × SO-AssA(α) )
+SO-DetA, detection accuracy: TP / (TP + FN + FP)
+SO-AssA, association accuracy: how consistently ids are kept
+A detection pair counts as a true positive when DotD ≥ α. Assignment is Hungarian, one-to-one. The reported figure averages over α ∈ {0.05, 0.10, …, 0.95}, following HOTA, so no single threshold decides the ranking.
+
+Also reported: SO-DetRe (recall), SO-DetPr (precision), SO-LocA (localization).
+
+Reproducing it
+The leaderboard runs TrackEval with the same SO-HOTA implementation as MVA2025:
+
+uv pip install 'git+https://github.com/IIM-TTIJ/TrackEval.git@smot4sb_dev'
+python -m evaluation.eval_tracking \
+    --gt-dir <gt> --tracker-dir <results> --seqmap <seqmap>
+Note the branch: master is a plain fork of upstream TrackEval and has neither SO-HOTA nor the SMOT4SB dataset class, so it would silently score with IoU.
+
+Definition and rationale: MVA2025 challenge report, arXiv:2507.12832 §4.
+
+Codabench
+Open-source platform for AI benchmarks and competitions
+
+Quick Links
+Popular Benchmarks
+Recent Benchmarks
+External Benchmarks
+Public Datasets
+News
+Organizers
+Create a benchmark
+Documentation
+API docs
+Community
+GitHub
+Release notes
+How to contribute
+Report an issue
+Cite Codabench
+© 2026 Codabench
+Privacy and Terms
+Code of Conduct
+Security
+License
+
+
+
+Codabench
+v1.37.1
+Open-source platform for AI benchmarks and competitions
+
+Benchmarks/Competitions
+Datasets
+
+dacow
+Competition Logo
+MVA2027 SMOTP4SB Challenge Track 2: Trajectory Prediction
+
+Win up to 150,000 JPY, with 300,000 JPY in prizes for the top 3 in this track!
+Organized by: mvatechevent (mva2027-tec@mva-org.jp)
+Current Phase Ends: February 4, 2027 at 6:59 PM GMT+7
+Current server time: November 21, 2026 at 9:10 AM GMT+7
+Docker image: codalab/codalab-legacy:py312 
+Track 2: Trajectory Prediction
+Predict where each bird will be over the next 150 frames (5 s) from 60 observed frames (2 s) of UAV video, as K = 6 possible paths.
+
+The input is video
+Observed trajectories are not provided. You receive images. Detecting and tracking the birds across the 60 observed frames is part of the task, and you then predict from your own tracks.
+
+Track 2 therefore contains Track 1. If you are entering both, your tracker output can be reused directly. If not, the Track 1 baseline in the challenge repository is a starting point.
+
+What makes this hard
+Small targets. Birds occupy a few dozen pixels, so appearance is close to useless for association.
+Motion entanglement. The camera and the birds both move freely in 3D, so observed motion mixes ego-motion with the bird's own.
+Disappearance. In the training data, 41% of the birds observed in a window leave the frame, are occluded, or dive out of view during the prediction horizon. Predicting when a track ends is part of the task. The Evaluation page explains how it is scored.
+Baseline and documentation
+Code, the full specification, and measured baselines: https://github.com/IIM-TTIJ/MVA2027-SMOTP4SB
+
+The shipped baselines take ground-truth trajectories as input, so their scores are upper bounds rather than what a full pipeline reaches from images.
+
+Dataset and private test
+The dataset is not distributed here. Download it from Google Drive. The link is on the challenge website.
+
+This page hosts the public test leaderboard only. For the private test, submit your trained model and test script through the Google Form before the code submission deadline (February 17, 2027, 23:59 AoE). The organizers run it on held-out sequences; the final ranking comes from that run. How the code is run (input layout, output format, Docker, GPUs, run time) is described in docs/private_test.md.
+
+Discussion on Discord
+Registered participants discuss the challenge on our Discord server. Within about ten minutes of registering for either track, CodaBench emails you a personal invitation (subject "A message from the admins of ..."). Joining through it links your Discord account to your CodaBench account: your name on the server is your CodaBench username, so contributions are credited to you. The invitation works once and is for you alone; team members each register and receive their own. If it does not arrive, email mva2027-tec@mva-org.jp. The participant who makes the most valuable contributions to the discussion receives the Best Booster Award.
+
+The challenge series at MVA
+MVA2023, SOD4SB: Small Object Detection for Spotting Birds, bird detection in images
+MVA2025, SMOT4SB: Small Multi-Object Tracking for Spotting Birds, bird tracking in drone video
+MVA2027, SMOTP4SB (this challenge): Small Multi-Object Tracking and Prediction for Spotting Birds, tracking and trajectory prediction, with drone IMU data
+Citation
+@inproceedings{kondo2025smot4sb,
+  title     = {{MVA 2025 Small Multi-Object Tracking for Spotting Birds
+               Challenge: Dataset, Methods, and Results}},
+  author    = {Kondo, Yuki and Ukita, Norimichi and others},
+  booktitle = {Proc. 19th Int. Conf. on Machine Vision and Applications (MVA)},
+  year      = {2025}
+}
+The MVA2027 challenge report will be published after the competition; please cite it as well once available.
+
+Codabench
+Open-source platform for AI benchmarks and competitions
+
+Quick Links
+Popular Benchmarks
+Recent Benchmarks
+External Benchmarks
+Public Datasets
+News
+Organizers
+Create a benchmark
+Documentation
+API docs
+Community
+GitHub
+Release notes
+How to contribute
+Report an issue
+Cite Codabench
+© 2026 Codabench
+Privacy and Terms
+Code of Conduct
+Security
+License
+
+
+Codabench
+v1.37.1
+Open-source platform for AI benchmarks and competitions
+
+Benchmarks/Competitions
+Datasets
+
+dacow
+Competition Logo
+MVA2027 SMOTP4SB Challenge Track 2: Trajectory Prediction
+
+Win up to 150,000 JPY, with 300,000 JPY in prizes for the top 3 in this track!
+Organized by: mvatechevent (mva2027-tec@mva-org.jp)
+Current Phase Ends: February 4, 2027 at 6:59 PM GMT+7
+Current server time: November 21, 2026 at 9:10 AM GMT+7
+Docker image: codalab/codalab-legacy:py312 
+Submission format
+A zip of two directories, one file per sequence in each:
+
+submission.zip
+├── prediction/{seq_id}.txt    what is scored
+└── tracking/{seq_id}.txt      how your track ids are matched to ground truth
+Both are required. A submission without tracking/ cannot be scored at all.
+
+prediction/{seq_id}.txt
+Six comma-separated columns, one row per predicted position:
+
+window_start, frame_id, track_id, mode_k, cx, cy
+column	meaning
+window_start	first observed frame of the window this prediction came from
+frame_id	absolute frame number in the sequence, 1-indexed
+track_id	your own id, consistent with tracking/{seq_id}.txt
+mode_k	0 to 5
+cx, cy	predicted centre in pixels, in the original 3840×2160 frame
+A complete track-window is 150 × 6 = 900 rows.
+
+Where windows start. window_start is 1, 151, 301, ... : windows are cut from frame 1 of each sequence (00001.jpg) every 150 frames, regardless of when the first bird appears. Predict for every window whose 210 frames fit in the sequence; windows with no bird in the observed frames are not scored.
+
+Why window_start is needed. Windows advance by 150 frames while each predicts 150 frames, so one frame can fall inside the horizon of more than one window. Two predictions for that frame are both valid, because they were made from different observations, so the window has to be named or they collide.
+
+Frames lie between window_start + 60 and window_start + 209. Leave out the frames where you predict the bird is out of view: a track may stop early, start late or resume after a gap. Each frame is scored on its own.
+
+tracking/{seq_id}.txt
+Standard MOT columns, covering the observed frames only:
+
+frame_id, track_id, x, y, w, h, conf
+Your track_ids are arbitrary and ground-truth tracks are never distributed, so the scorer matches them to GT ids by Hungarian assignment on this file, per window, over that window's observed frames. Cost is the mean centre distance. Pairs further apart than roughly three mean bounding boxes, or sharing fewer than 5 observed frames, are not matched.
+
+Matching never uses your predicted frames. A predicted track_id that does not appear in the tracking file cannot be scored.
+
+Check before uploading
+python tools/validate_submission.py submission.zip
+It rejects duplicate rows, frames outside the horizon, and predicted ids missing from the tracking file. It warns about missing modes and modes that cover different frames: both are legal, and both are usually bugs, because the scorer cannot distinguish an intentional early stop from a dropped row.
+
+A sequence with no prediction file is scored as a run of misses, not skipped.
+
+Codabench
+Open-source platform for AI benchmarks and competitions
+
+Quick Links
+Popular Benchmarks
+Recent Benchmarks
+External Benchmarks
+Public Datasets
+News
+Organizers
+Create a benchmark
+Documentation
+API docs
+Community
+GitHub
+Release notes
+How to contribute
+Report an issue
+Cite Codabench
+© 2026 Codabench
+Privacy and Terms
+Code of Conduct
+Security
+License
+
+
+Codabench
+v1.37.1
+Open-source platform for AI benchmarks and competitions
+
+Benchmarks/Competitions
+Datasets
+
+dacow
+Competition Logo
+MVA2027 SMOTP4SB Challenge Track 2: Trajectory Prediction
+
+Win up to 150,000 JPY, with 300,000 JPY in prizes for the top 3 in this track!
+Organized by: mvatechevent (mva2027-tec@mva-org.jp)
+Current Phase Ends: February 4, 2027 at 6:59 PM GMT+7
+Current server time: November 21, 2026 at 9:10 AM GMT+7
+Docker image: codalab/codalab-legacy:py312 
+Evaluation
+The ranking metric is SO-HOTA-TP. minADE₆, minFDE₆ are shown alongside but do not affect the ranking.
+
+Why not minADE
+ADE and FDE need a ground-truth position at every predicted timestep. In the training data, 41% of the birds observed in a window are not visible for all of the 5 seconds that follow, and over the missing frames those metrics are undefined.
+
+SO-HOTA-TP adapts SO-HOTA, the Track 1 metric from MVA2025, to prediction. It scores against the frames where GT exists and counts predictions for an absent bird as false positives, so disappearance is handled inside the metric instead of being excluded from it.
+
+This changes what is rewarded. Under minADE, emitting all 150 frames regardless of whether the bird is still visible costs nothing. Under SO-HOTA-TP, every position emitted for a bird that has already gone is a false positive.
+
+Bird	Your prediction	Counted as
+visible	present, close enough	true positive
+visible	present, too far	false negative + false positive
+visible	absent	false negative
+gone	present	false positive
+gone	absent	correct; contributes nothing
+Definition
+SO-HOTA-TP = sqrt(SO-DetA-TP × SO-AssA-TP)
+Similarity is Dot Distance, DotD(A,B) = exp(-D/S), where D is the distance between centres and S is the mean bounding-box size over the dataset. A pair counts as a true positive when DotD ≥ α, and the reported figure averages over α ∈ {0.05, 0.10, …, 0.95}, following HOTA. Assignment is Hungarian, one-to-one.
+
+Dot Distance is used instead of IoU because for objects a few dozen pixels across, IoU collapses to zero as soon as the boxes stop overlapping, which makes it unable to separate a near miss from a wild one.
+
+Best-of-K
+For each track, the mode with the highest mean Dot Distance over the frames where the bird is visible is selected, and only that one is scored. Selection is per track-window, not per frame.
+
+Across sequences
+Sequences are combined by true-positive count, as TrackEval's combine_sequences does. Averaging per-sequence scores instead would let a sequence with two windows count as much as one with forty. S is computed once over the whole split, so the distance scale is the same everywhere.
+
+Reproducing it
+The leaderboard runs the same code as the repository:
+
+python -m evaluation.so_hota_tp --pred pred.txt --gt gt.txt --tracks tracks.txt
+The definition, with every edge case, is in the repository at docs/so_hota_tp.md.
+
+Codabench
+Open-source platform for AI benchmarks and competitions
+
+Quick Links
+Popular Benchmarks
+Recent Benchmarks
+External Benchmarks
+Public Datasets
+News
+Organizers
+Create a benchmark
+Documentation
+API docs
+Community
+GitHub
+Release notes
+How to contribute
+Report an issue
+Cite Codabench
+© 2026 Codabench
+Privacy and Terms
+Code of Conduct
+Security
+License
