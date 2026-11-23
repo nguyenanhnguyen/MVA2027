@@ -21,3 +21,5 @@ submissions/
 
 # third_party được quản lý bằng submodule
 third_party/*/.git
+
+models/

@@ -1,53 +1,74 @@
-# MVA2027 SMOTP4SB: cả hai track
+# MVA2027 SMOTP4SB: cả hai track trong một codebase
 
-Kế hoạch đầy đủ: [PLAN.md](PLAN.md). Nội dung cuộc thi: [context.txt](context.txt).
+Kế hoạch và lý do thiết kế: [PLAN.md](PLAN.md) (mục 9 là phiên bản mới nhất). Nội dung cuộc thi: [context.txt](context.txt).
 
-## Ý tưởng tổ chức
-
-- **Track 2 chứa Track 1.** Detector và tracker viết **một lần** trong `src/smotp/`, hai track chỉ khác lớp cuối.
-- **Code ở đây (git), dữ liệu ở ổ E: (ngoài git).** Đường dẫn qua biến môi trường, xem `.env.example`.
-- **Mọi thứ sinh ra đều xoá và tạo lại được** (`work/derived/<loại>/<config_hash>`).
-- **Mọi lần chạy ghi một dòng vào `experiments/ledger.csv`** (commit, config, điểm CV, điểm public).
+## Cấu trúc
 
 ```
 src/smotp/
-  common/      formats.py (đọc/ghi + kiểm tra file nộp), paths.py   <- dùng chung 2 track
-  detection/   detector, SliceTrain, suy luận                         <- dùng chung
-  tracking/    YOLOv8-SMOT-style tracker, lọc track                   <- dùng chung
-  prediction/  cửa sổ 60->150 frame, LSTM, loss SO-HOTA-TP            <- chỉ Track 2
-  eval/        gọi evaluator của repo baseline, CV theo nhóm
-configs/       common/ track1/ track2/   (mỗi run = 1 file config; hash ghi vào ledger)
-scripts/       manifest.py, (tải/giải nén, tạo bộ mini, đóng gói nộp)
-splits/        folds.json  <- chia THEO NHÓM CẢNH, cả nhóm dùng chung, không tự chia riêng
-private_test/  track1/ track2/  run.sh + Dockerfile cho gói nộp cuối
-notebooks/kaggle/   notebook mỏng, chỉ gọi code trong src/
-third_party/   repo baseline (submodule): MVA2027-SMOTP4SB, TrackEval nhánh smot4sb_dev
-experiments/   ledger.csv
-tests/         pytest cho các quy ước định dạng (dễ lỗi lệch frame/tâm/độ phân giải)
+  data.py      đường dẫn (.env), danh sách sequence, nhãn train, khóa nội dung, ánh xạ ID hai gói, chia fold
+  formats.py   đọc/ghi/kiểm tra file nộp của CẢ HAI track, zip
+  detect.py    tile SliceTrain, huấn luyện YOLOv8, suy luận full-frame, cache detection theo nội dung
+  track.py     tracker (một lõi, dùng cho cả Track 1 cả sequence và Track 2 từng cửa sổ)
+  predict.py   Track 2: cửa sổ, đặc trưng, LSTM 6 mode + loss SO-HOTA-TP, baseline vận tốc hằng số, quy tắc phát/dừng
+  evaluate.py  ước lượng nhanh (proxy) + gọi evaluator chính thức của repo baseline
+  cli.py       điểm vào duy nhất: python -m smotp.cli <lệnh>
+configs/default.toml     toàn bộ tham số
+private_test/            Dockerfile + run_track1.sh + run_track2.sh (gói nộp cuối)
+tests/test_core.py       kiểm thử bằng dữ liệu tổng hợp
+splits/                  folds.json, idmap_pub_test.json (sinh ra, đưa vào git để cả nhóm dùng chung)
+experiments/ledger.csv   sổ ghi mọi lần chạy và mọi lần nộp
+third_party/             repo baseline (submodule) + TrackEval nhánh smot4sb_dev
 ```
+Không vào git: `work/` (cache, tile), `models/`, `submissions/`, mọi `.pt`, `.zip`.
 
-Thư mục **không** vào git: `work/`, `runs/`, `submissions/`, trọng số, zip.
+## Luồng làm việc
 
-## Bắt đầu
+```
+gói T1 ─┐                                       ┌─ track1 ──► {seq}.txt            (Track 1)
+        ├─ detect (cache theo NỘI DUNG) ────────┤
+gói T2 ─┘                                       └─ track2 ──► prediction/ tracking/ (Track 2)
+   train ─► tiles ─► train-det ─► det_final.pt      train-pred ─► pred.pt
+```
 
 ```powershell
-git submodule add https://github.com/IIM-TTIJ/MVA2027-SMOTP4SB third_party/MVA2027-SMOTP4SB
-copy .env.example .env      # rồi sửa đường dẫn
-python scripts/manifest.py  # sau khi đã tải dữ liệu
-python -m pytest tests -q
+copy .env.example .env                      # sửa đường dẫn; đặt trong Windows: python -m pytest tests -q
+python -m smotp.cli manifest --track 1      # đếm sequence/frame, ghi work/MANIFEST_t1.json
+python -m smotp.cli idmap                   # pub_test hai gói có trùng nội dung không?
+python -m smotp.cli folds                   # chia 5 fold -> splits/folds.json
+# Detector (GPU; laptop 4 GB không đủ => Kaggle):
+python -m smotp.cli tiles --val-fold 0
+python -m smotp.cli train-det --val-fold 0  # -> models/det_fold0.pt ; lặp fold 0..4 để có detector OOF
+#   copy detector cuối thành models/det_final.pt
+python -m smotp.cli detect --split pub_test --track 1
+# Track 1
+python -m smotp.cli track1 --split pub_test             # -> submissions/track1_*.zip
+# Track 2
+python -m smotp.cli train-pred --source gt              # hoặc --source tracker (cần detector OOF)
+python -m smotp.cli eval-pred  --source gt              # proxy nhanh, quét tau
+python -m smotp.cli track2 --split pub_test             # -> submissions/track2_*.zip
 ```
+Sau khi nộp, ghi điểm vào `experiments/ledger.csv`. Score chính thức: `third_party/…/evaluation`.
 
-## Luồng dữ liệu
+## Đã kiểm thử và chưa kiểm thử
 
-```
-raw (E:, chỉ-đọc) -> derived/tiles -> detector -> derived/detections -> tracker -> derived/tracks
-                                                                          |-> Track 1: {seq}.txt
-                                                                          '-> predictor -> Track 2: prediction/ + tracking/
-```
-Tracker và predictor chạy trên **detection cache**, nên gần như không cần GPU và lặp được hàng trăm lần mỗi giờ.
+| Thành phần | Trạng thái |
+|---|---|
+| Định dạng file, cửa sổ, kiểm tra, zip | Đã test (dữ liệu tổng hợp) |
+| Lưới tile, hộp trong tile | Đã test |
+| Tracker (hai chim, bỏ sót 15%, nhiễu) | Đã test: giữ đúng ID, nội suy lấp khoảng trống |
+| Dựng cửa sổ, khớp track↔GT, bộ dự đoán `cv`, proxy chấm điểm | Đã test, gồm tính chất phát thừa bị phạt |
+| Pipeline Track 1 và Track 2 với detector giả | Đã test từ đầu đến file nộp, qua kiểm tra |
+| Augmentation huấn luyện | Đã test hình học |
+| **Huấn luyện LSTM, loss, suy luận bằng mạng** | **Chưa chạy**: máy chưa có torch (test tự bỏ qua) |
+| **Tạo tile, huấn luyện và suy luận YOLOv8** | **Chưa chạy**: chưa có ultralytics, dữ liệu, GPU |
+| **Dockerfile / run_track*.sh** | **Chưa build** |
 
-## Quy tắc nhóm
+## Giả định cần kiểm tra ngay khi có dữ liệu
 
-1. Một lệnh đánh giá, một nhánh TrackEval (`smot4sb_dev`, nhánh `master` chấm bằng IoU mà không báo lỗi), một `folds.json`.
-2. Một người giữ quyền nộp CodaBench (10 lượt/ngày cho cả nhóm); mọi lượt nộp ghi vào ledger.
-3. Chọn tham số bằng CV, không bằng leaderboard public.
+1. `load_gt`: cấu trúc `annotations/train.json` (file_name chứa thư mục sequence, trường `frame_id`, `track_id`, `bbox`).
+2. Tọa độ nộp cho sequence 1080p: trang Codabench nói "khung 3840×2160 gốc"; code hiện giữ tọa độ gốc của từng sequence. **Phải đối chiếu với `tools/validate_submission.py` và hỏi ban tổ chức.**
+3. Tracker là bản viết lại theo paper; công thức chuẩn hóa khoảng cách và mọi ngưỡng cần ablation (tái lập +11 điểm) trước khi tin.
+4. `folds.json` chia theo (độ phân giải, IMU) và khối id liên tiếp, chỉ là xấp xỉ "theo cảnh"; thay bằng nhãn cảnh thật nếu có.
+5. Cú pháp `run_official` lấy từ tài liệu; kiểm tra bằng `--help` khi có repo.
+6. IMU **không được dùng** (PLAN.md mục 9.2a). Thêm lại chỉ khi có thí nghiệm chứng minh có lợi.

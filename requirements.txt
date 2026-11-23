@@ -1,0 +1,11 @@
+# Cốt lõi (tracker, dự đoán baseline, đánh giá, kiểm thử): chỉ cần ba thư viện này
+numpy
+scipy
+pillow
+
+# Detector và LSTM (cần GPU để huấn luyện). Ghim phiên bản CHÍNH XÁC sau khi môi trường đã chạy ổn,
+# ở cả local lẫn Kaggle, để điểm hai nơi khớp nhau:
+torch
+ultralytics
+
+pytest
