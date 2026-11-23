@@ -1,0 +1,23 @@
+# môi trường, cache
+env/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+
+# dữ liệu và sản phẩm lớn: KHÔNG đưa vào git
+work/
+runs/
+data/
+*.zip
+*.tar
+*.tar.gz
+*.pt
+*.pth
+*.onnx
+*.ckpt
+submissions/
+
+# third_party được quản lý bằng submodule
+third_party/*/.git
